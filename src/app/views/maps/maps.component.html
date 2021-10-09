@@ -1,0 +1,19 @@
+<div class="animated fadeIn">
+
+    <div class="card">
+
+        <div class="card-header">
+            Mesured Parameters
+
+        </div>
+        <div class="card-body">
+           
+
+            <div class="map" leaflet
+            (leafletMapReady)="onMapReady($event)" [leafletOptions]="options" style="min-height:600px; height: 100%; width: 100%;"
+            [leafletLayersControl]="layersControl">
+            </div>
+
+        </div>
+    </div>
+</div>

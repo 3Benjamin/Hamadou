@@ -1,0 +1,395 @@
+var focusOuaga = [12.357637, -1.533863]; //BURKINA FASO
+var zoom = 7;
+
+// Initialisation de la carte
+// var stamen = new L.StamenTileLayer("toner-lite");
+var map = L.map('map').setView(focusOuaga, zoom);
+
+//récupération du fond de carte depuis un serveur d'OpenStreetMap
+// var mapTile = 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png';
+var mapTile = 'http://{s}.tile.osm.org/{z}/{x}/{y}.png';
+var mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+L.tileLayer(mapTile, {
+    attribution: mapAttribution,
+    maxZoom: 24,
+    minZoom: 7
+}).addTo(map);
+
+// geoJSON pour la couleur de fond du burkina
+$.getJSON('data/burkinaFaso_regions.json', function (data) {
+    var myStyle = {
+        "color": "#195CF5",
+        "weight": 0,
+        "opacity": 0.65
+    };
+    L.geoJson(data, {style: myStyle}).addTo(map);
+});
+
+// Disactivation du zoom au scrol
+map.scrollWheelZoom.disable();
+
+var iconBase = "frontend/css/maps/images/";
+
+// Ma position
+/*lc = L.control.locate().addTo(map);*/
+
+/* Champs de recherche */
+L.control.custom({
+    position: 'topleft',
+    content: '<div class="form-group">' + btnSearch +
+    '</div>' +
+    '<div class="form-group" style="width: 100%">' +
+    '<div class="input-group-append radius_left">' +
+    '<div class="input-group-append">' +
+    '<span class="input-group-text border_radius search"' +
+    'title="Taper le nom d\'une école pour la géolocaliser"><i class="fa fa-search"></i></span>' +
+    '</div>' +
+    '<input type="text" class="form-control form-control-sm auto" placeholder="Nom d\'une école" id="lib" name="lib">' +
+    '</div>' +
+    '</div>',
+    classes: '',
+    style: {
+        position: 'absolute',
+        left: '35px',
+        top: '0px',
+        width: '200px',
+    },
+}).addTo(map);
+
+var legend = L.control({position: 'bottomright'});
+
+// Ajout de la legend sur carte
+legend.onAdd = function () {
+    var div = L.DomUtil.create('div', 'info legend');
+    var strVar = "";
+    strVar += "<div>";
+    strVar += "    <div class=\"body\">";
+    strVar += "      <dl>";
+    strVar += "        <dt>Public</dt>";
+    strVar += "        <dd><img style='height: 24px; width: 16px;' src='frontend/css/maps/images/reconnu.png'></dd>";
+    strVar += "      </dl>";
+    strVar += "      <dl><dt>Privé</dt>";
+    strVar += "        <dd><img style='height: 24px; width: 16px;' src='frontend/css/maps/images/nonreconnu.png'></dd>";
+    strVar += "      </dl>";
+    strVar += "    </div>";
+    strVar += "  </div>";
+    div.innerHTML = strVar;
+    return div;
+};
+legend.addTo(map)
+
+// Ajout des marqueurs sur la carte
+var markersLayer = new L.LayerGroup();
+$.ajax({
+    type: 'GET',
+    url: "/getVueEtablissement",
+    dataType: 'json',
+    success: function (data) {
+        var compteur = 0;
+        // Nous initialisons les groupes de marqueurs
+        var markersReconnu = L.markerClusterGroup({
+            showCoverageOnHover: true,
+            iconCreateFunction: function (cluster) {
+                return L.divIcon({html: '<div class="clusterReconnu">' + cluster.getChildCount() + '</div>'});
+            }
+        });
+        var markersNonReconnu = L.markerClusterGroup({
+            showCoverageOnHover: true,
+            iconCreateFunction: function (cluster) {
+                return L.divIcon({html: '<div class="clusterNonReconnu">' + cluster.getChildCount() + '</div>'});
+            }
+        });
+
+        // console.log("AAAAAAA :", data); stat_id
+
+        $.each(data, function (index, donnees) {
+            if (donnees.etab_longitude != null && donnees.etab_latitude != null) {
+                // Personnalisation des marqueurs en fonction du statut de l'ecole
+                var iconMarker;
+                if (donnees.stat_id == 1) {
+                // if (donnees.etab_isreconnu == true) {
+                    // if (donnees.stat_libelle == 'Public') {
+                    iconMarker = iconBase + "reconnu.png";
+                } 
+                else {
+                // else if (donnees.etab_isreconnu == false) {
+                    iconMarker = iconBase + "nonreconnu.png";
+                }
+                var iconEcole = L.icon({
+                    iconUrl: iconMarker,
+                    iconSize: [25, 41],
+                    iconAnchor: [27, 58],
+                    popupAnchor: [-15, -55]
+                });
+
+                // Ajout des markers
+                var marker = L.marker([donnees.etab_latitude, donnees.etab_longitude], {
+                    icon: iconEcole,
+                    title: donnees.nom
+                }).bindPopup(contentPopup(donnees.etab_id, donnees.etab_nom, donnees.etab_telephone,
+                    donnees.stat_libelle, donnees.type_libelle, donnees.sec_libelle)).openPopup();
+                // }).bindPopup(popupContent).openPopup();
+                // Nous ajoutons le marqueur aux groupes
+                if (donnees.stat_id == 1) {
+                // if (donnees.etab_isreconnu == true) {
+                    // if (donnees.stat_libelle == 'Public') {
+                    markersReconnu.addLayer(marker);
+                } 
+                else {
+                // else if (donnees.etab_isreconnu == false) {
+                    markersNonReconnu.addLayer(marker);
+                }
+                compteur++;
+            }
+        });
+        var reconnu = markersReconnu;
+        var nonreconnu = markersNonReconnu;
+
+        var OVERLAY = {
+            '<span style="font-weight: bold; color: green;">Public</span>': reconnu,
+            '<span style="font-weight: bold; color: red;">Privé</span>': nonreconnu
+        };
+        L.control.layers(null, OVERLAY).addTo(map);
+
+        markersLayer.addLayer(markersReconnu);
+        markersLayer.addLayer(markersNonReconnu);
+        map.addLayer(markersLayer);
+    }
+});
+
+var codeEtab = null;
+
+// autocomplet sur le champs de recherche
+$("#lib").autocomplete({
+    source: function (request, response) {
+        $.ajax({
+            url: "/getEtablissemetsLikeNom",
+            data: {term: request.term},
+            dataType: "json",
+            success: function (data) {
+                var donnees = [];
+                var nbre = 0;
+
+                $.each(data, function (i, val) {
+                    donnees.push({
+                        id: val.etab_id,
+                        label: val.etab_nom,
+                        code: val.etab_code,
+                        lat: val.etab_latitude,
+                        lon: val.etab_longitude,
+                        tel: val.etab_telephone,
+                        stat: val.stat_libelle,
+                        typEtude: val.type_libelle,
+                        sousSection: val.sec_libelle,
+                        isReconnu: val.etab_isreconnu,
+                        com_libelle: val.com_libelle,
+                        stat_id: val.stat_id
+                    });
+                    // nbre = nbre + 1;
+                });
+                var resultat = "";
+                nbre = donnees.length;
+                if (nbre <= 0) {
+                    resultat = nbre + " Résultat trouvé";
+                    $("div.resultat").replaceWith('<div class="text-center my-2 wow fadeInUp resultat" data-wow-duration="1s" data-wow-delay="0.3s">' +
+                        '<h5 class="border-danger"><span class="heading_border bg-danger mx-auto">' + resultat + '</span>' +
+                        '</h5>' +
+                        ' </div>');
+                } else if (nbre == 1) {
+                    resultat = nbre + " Résultat trouvé";
+                    $("div.resultat").replaceWith('<div class="text-center my-2 wow fadeInUp resultat" data-wow-duration="1s" data-wow-delay="0.3s">' +
+                        '<h5 class="border-success"><span class="heading_border bg-success mx-auto">' + resultat + '</span>' +
+                        '</h5>' +
+                        ' </div>');
+                } else if (nbre > 1) {
+                    resultat = nbre + " Résultats trouvés";
+                    $("div.resultat").replaceWith('<div class="text-center my-2 wow fadeInUp resultat" data-wow-duration="1s" data-wow-delay="0.3s">' +
+                        '<h5 class="border-success"><span class="heading_border bg-success mx-auto">' + resultat + '</span>' +
+                        '</h5>' +
+                        ' </div>');
+                }
+                response(donnees);
+            }
+        });
+    },
+    minLength: 1,
+    // Action appliquee a la selection d'un resultat apres autocompletition
+    select: function (event, ui) {
+        codeEtab = ui.item.code;
+        var lat = ui.item.lat;
+        var lon = ui.item.lon;
+        var id = ui.item.id;
+        var nom = ui.item.label;
+        var tel = ui.item.tel;
+        var stat = ui.item.stat;
+        var typEtude = ui.item.typEtude;
+        var sousSection = ui.item.sousSection;
+        var isReconnu = ui.item.isReconnu;
+        var com_libelle = ui.item.com_libelle;
+        var stat_id = ui.item.stat_id;
+        // desactiver les markers
+        markersLayer.clearLayers();
+        // Centrer la carte sur l'ecole selectionnee
+        if (lat != null && lon != null) {
+            var location = new L.LatLng(lat, lon);
+            map.setView(location, 15);
+            // Personnalisation des marqueurs en fonction du statut de l'ecole
+            var iconMarker;
+            // if (isReconnu == true) {
+            if (stat_id == 1) {
+                // if (stat == 'Public') {
+                iconMarker = iconBase + "reconnu.png";
+            } 
+            else {
+            // else if (isReconnu == false) {
+                iconMarker = iconBase + "nonreconnu.png";
+            }
+            var iconEcole = L.icon({
+                iconUrl: iconMarker,
+                iconSize: [25, 41],
+                iconAnchor: [27, 58],
+                popupAnchor: [-15, -55]
+            });
+            var marker = L.marker([lat, lon], {
+                icon: iconEcole,
+                title: ui.item.label
+            }).bindPopup(contentPopup(id, nom, tel, stat, typEtude, sousSection)).addTo(map);
+            // }).bindPopup('Ecole').addTo(map);
+            // var circle = L.circle([lat, lon], {color: 'red'}).addTo(map);
+        } else {
+            swal({
+                title: 'Désolé !',
+                text: "L'école '"+nom+"' se trouvant dans la commune de '"+com_libelle+"' n'a pas de coordonnées pour la localisation.",
+                // text: 'Cette école n\'a pas de coordonnées pour la localisation',
+                type: "error",
+                timer: '8000'
+            });
+        }
+        resultat = 1 + " Résultat trouvé";
+        $("div.resultat").replaceWith('<div class="text-center my-2 wow fadeInUp resultat" data-wow-duration="1s" data-wow-delay="0.3s">' +
+            '<h5 class="border-success"><span class="heading_border bg-success mx-auto">' + resultat + '</span>' +
+            '</h5>' +
+            ' </div>');
+    }
+});
+
+// fonction de recherche
+function search() {
+    markersLayer.clearLayers();
+    if (codeEtab != null) {
+        $.ajax({
+            url: "/getEtablissemetByCode/" + codeEtab,
+            dataType: "json",
+            success: function (data) {
+                var lat = data[0].etab_latitude;
+                var lon = data[0].etab_longitude;
+                var id = data[0].etab_id;
+                var nom = data[0].etab_nom;
+                var tel = data[0].etab_telephone;
+                var stat = data[0].stat_libelle;
+                var typEtude = data[0].type_libelle;
+                var sousSection = data[0].sec_libelle;
+                var isReconnu = data[0].etab_isreconnu;
+                var com_libelle = data[0].com_libelle;
+                var stat_id = data[0].stat_id;
+                
+                // console.log(data[0]);
+                // console.log("LAT : "+lat+" ; LON : "+lon);
+                // console.log("LAT : "+data[0].etab_latitude+" ; LON : "+data[0].etab_longitude);
+
+                // Centrer la carte sur l'ecole trouvee
+                if (lat != null && lon != null) {
+                    var location = new L.LatLng(lat, lon);
+                    map.setView(location, 15);
+                    // Personnalisation des marqueurs en fonction du statut de l'ecole
+                    var iconMarker;
+                    if (stat_id == 1) {
+                    // if (isReconnu == true) {
+                        // if (stat == 'Public') {
+                        iconMarker = iconBase + "reconnu.png";
+                    } else {
+                        iconMarker = iconBase + "nonreconnu.png";
+                    }
+                    var iconEcole = L.icon({
+                        iconUrl: iconMarker,
+                        iconSize: [25, 41],
+                        iconAnchor: [27, 58],
+                        popupAnchor: [-15, -55]
+                    });
+                    var marker = L.marker([lat, lon], {
+                        icon: iconEcole,
+                        title: nom
+                    }).bindPopup(contentPopup(id, nom, tel, stat, typEtude, sousSection)).addTo(map);
+                    // var circle = L.circle([lat, lon], {color: 'red'}).addTo(map);
+                }
+                else {
+                    /*var location = new L.LatLng(data[0].com_latitude, data[0].com_longitude);
+                    map.setView(location, 15);*/
+                    swal({
+                        title: 'Désolé !',
+                        // text: 'Cette école n\'a pas de coordonnées pour la localisation',
+                        text: "L'école '"+nom+"' se trouvant dans la commune de '"+com_libelle+"' n'a pas de coordonnées pour la localisation.",
+                        type: "error",
+                        timer: '8000'
+                    });
+                }
+                resultat = 1 + " Résultat trouvé";
+                $("div.resultat").replaceWith('<div class="text-center my-2 wow fadeInUp resultat" data-wow-duration="1s" data-wow-delay="0.3s">' +
+                    '<h5 class="border-success"><span class="heading_border bg-success mx-auto">' + resultat + '</span>' +
+                    '</h5>' +
+                    ' </div>');
+            }
+        });
+    } else {
+        swal({
+            title: 'Désolé !',
+            text: 'Le champ de recherche ne peut pas être vide.\n Veillez saisir le nom de l\'école et réessayer, merci !',
+            type: "error",
+            timer: '8000'
+        });
+    }
+}
+
+// Fenetre popup au clic sur un marqueur
+function contentPopup(etabId, nom, telephone, statut, typeEtude, sousSection) {
+    if (telephone != null) {
+        telephone = "(+226) " + telephone;
+    } else {
+        telephone = "Indisponible";
+    }
+    var popupContent = '<div class="infoBulle">' +
+        '<div class="titreInfoBulle" style="font-weight: bold; color: #0B0B61; font-size: 16px">D&eacute;tails de l\'&eacute;cole</div>' +
+        '<table style="margin:10px; width: 320px;">' +
+        /*'<thead>' +
+        '<tr>' +
+        '<th colspan="2">D&eacute;tails de l\'&eacute;cole</th>' +
+        '</tr>' +
+        '</thead>' +*/
+        '<tbody>' +
+        '<tr>' +
+        '<td style="font-weight: bold; color: #000;">Nom de l\'&eacute;cole</td>' +
+        '<td class="realData">: ' + nom + '</td>' +
+        '</tr>' +
+        '<tr>' +
+        '<td style="font-weight: bold; color: #000;">T&eacute;l&eacute;phone</td>' +
+        '<td class="realData">: ' + telephone + '</td>' +
+        '</tr>' +
+        '<tr>' +
+        '<td style="font-weight: bold; color: #000;">Statut</td>' +
+        '<td class="realData">: ' + statut + '</td>' +
+        '</tr>' +
+        '<tr>' +
+        '<td style="font-weight: bold; color: #000;">Type d\'établissement</td>' +
+        '<td class="realData">: ' + typeEtude + '</td>' +
+        '</tr>' +
+        '<tr>' +
+        '<td style="font-weight: bold; color: #000;">Sous-secteur</td>' +
+        '<td class="realData">: ' + sousSection + '</td>' +
+        '</tr>' +
+        '</tbody>' +
+        '</table>' +
+        '<a href="detail/' + etabId + '"><button class="btn btn-xs btn-primary detailBtn" style="width: 100%">' +
+        '<i class="fa fa-info"></i> PLUS DE DETAILS</button></a>' +
+        '</div>';
+    return popupContent;
+}

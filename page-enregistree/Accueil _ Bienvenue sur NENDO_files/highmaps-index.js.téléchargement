@@ -1,0 +1,292 @@
+/** Initialisation des parametre (par defaut pour la region) */
+var typeExamen = 'BEPC';
+var codeInd = 'TSUS';
+$('#typeExam').val(typeExamen);
+var annee = $('#annee').val();
+$('#annee').val(annee);
+var initUrl = "/getTauxSuccesRegionsByAnnee/" + codeInd + "/" + annee;
+var initDecoupage = Highcharts.maps["countries/bf/bf-reg"];
+// var initDecoupage = "countries/bf/bf-reg";
+var initCouverture = "Région";
+var initUrlDetail = "/getTauxSuccesForRegionByAnnee/" + codeInd;
+$.ajax({
+    type: 'GET',
+    url: initUrl,
+    dataType: 'json',
+    success: function (data) {
+        /*var datas = [];
+        $.each(data, function (index, pro) {
+            var tab = [pro.code, pro.taux];
+            datas.push(tab);
+        });*/
+        initHighmaps(data, initDecoupage, initCouverture, initUrlDetail, $("#chartdiv").width());
+    }
+});
+
+/** Fonction d'initialisation de la carte des taux de succes */
+function initHighmaps(datas, decoupage, couverture, urlDetail, largeur) {
+    // Highcharts.mapChart("chartdiv", {
+    typeExamen = $('#typeExam').val();
+    var annee = $('#annee').val();
+    var strAnne;
+    if(annee == null){
+        strAnne = '';
+    }else{
+        strAnne = 'en ' + annee;
+    }
+    $('#chartdiv').highcharts('Map', {
+        chart: {
+            height: 600
+            // width: largeur
+        },
+        title: {
+            text: "Taux de succès de " + typeExamen + " "+ strAnne + " par " + couverture,
+            verticalAlign: 'top',
+            align: 'left',
+            x: 50
+        },
+        subtitle: {
+            text: "Cliquer sur une " + couverture + " pour afficher <br>plus d'information la concernant",
+            verticalAlign: 'top',
+            align: 'right',
+            y: 40,
+            style: {
+                fontWeight: "bold",
+                color: 'red'
+            }
+        },
+        credits: {
+            text: 'NENDO - BF',
+            href: 'http://nendo.gov.bf/'
+        },
+        lang: {
+            decimalPoint: ",",
+            downloadPNG: "Télécharger en image PNG",
+            downloadJPEG: "Télécharger en image JPEG",
+            downloadPDF: "Télécharger en document PDF",
+            loading: "Chargement en cours...",
+            thousandsSep: " ",
+            printChart: "Imprimer le graphique",
+            downloadCSV: "Exporter les données au format CSV",
+            downloadXLS: "Exporter les données au format Excel"
+        },
+        exporting: {
+            enabled: 1
+        },
+        mapNavigation: {
+            enabled: true,
+            enableMouseWheelZoom: true,
+            buttonOptions: {
+                verticalAlign: 'top'
+            }
+        },
+        plotOptions: {
+            series: {
+                events: {
+                    click: function (a) {
+                        if (a.point.value == 0) {
+                            $("#modalNoData").modal("show");
+                            $('#modalNoDataTitre').text("Details de l'examen du " + typeExamen + " " + annee + " dans la " + couverture + " : " + a.point.name);
+                            $('#modalNoDataBody').text("Aucune donnée disponible dans cette " + couverture + " pour l'année " + annee + " !");
+                        } else {
+                            $.ajax({
+                                type: 'GET',
+                                url: urlDetail + "/" + a.point['hc-key'] + "/" + annee,
+                                dataType: 'json',
+                                success: function (response) {
+                                    var result = response.tauxsucces;
+                                    if (result != null) {
+                                        $("#modal").modal("show");
+                                        $('#modTitre').text("Details de l'examen du " + typeExamen + " " + annee + " dans la " + couverture + " : " + a.point.name);
+                                        $('#regD').text(result.reg_libelle);
+                                        $('#filleInscrit').text(parseInt(result.vind_valeur1));
+                                        $('#garconInscrit').text(parseInt(result.vind_valeur2));
+                                        $('#fillePresent').text(parseInt(result.vind_valeur3));
+                                        $('#garconPresent').text(parseInt(result.vind_valeur4));
+                                        $('#filleAdmis').text(parseInt(result.vind_valeur5));
+                                        $('#garconAdmis').text(parseInt(result.vind_valeur6));
+                                        $('#tauxFille').text(result.vind_valeur7);
+                                        $('#tauxGarcon').text(result.vind_valeur8);
+                                        $('#taux').text(result.vind_valeur9);
+                                        $('#source').text("MENAPLN");
+                                        if (result.vind_datepub != null) {
+                                            $('#dateMAJ').text(dateFormat(result.vind_datepub, "dd-mm-yyyy à HH:mm:ss"));
+                                        }
+                                    } else {
+                                        swal({
+                                            title: 'DESOLE !',
+                                            text: 'Données non disponible dans cette localité',
+                                            type: "warning",
+                                            timer: '10000'
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            },
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'bottom',
+            floating: true,
+            layout: 'vertical',
+            valueDecimals: 0,
+            itemWidth: 150,
+            backgroundColor: "#A4A4A4",
+            borderColor: "#000000",
+            borderRadius: 5,
+            borderWidth: 1,
+            title: {
+                text: "Taux de succès",
+                style: {
+                    fontWeight: "bold",
+                    align: "center"
+                }
+            }
+        },
+        colorAxis: {
+            dataClasses: [{
+                from: 0,
+                to: 25,
+                color: '#FA4000',
+                name: 'Moins de 25%'
+            }, {
+                from: 25,
+                to: 50,
+                color: '#faf63e',
+                name: 'Entre 25% et 50%'
+            }, {
+                from: 50,
+                to: 75,
+                color: '#91cf0f',
+                name: 'Entre 50% et 75%'
+            }, {
+                from: 75,
+                to: 100,
+                color: '#0e9b02',
+                name: 'Plus de 75%'
+            }, {
+                from: null,
+                to: null,
+                color: '#fff',
+                name: 'Pas de données'
+            }]
+        },
+        tooltip: {
+            headerFormat: '<b>{point.key}</b><br/>',
+            pointFormat: 'Taux de succès: {point.value}<br/><b><u>Cliquez pour plus de détails</u></b>'
+        },
+        series: [
+            {
+                id: 'myserie',
+                data: datas,
+                mapData: decoupage,
+                animation: true,
+                joinBy: ['hc-key', 'code'],
+                name: "Valeur",
+                nullInteraction: true,
+                borderColor: 'black',
+                borderWidth: 0.2,
+                states: {
+                    /*hover: {
+                        borderWidth: 1,
+                        color: "#fff"
+                    }*/
+                },
+                dataLabels: {
+                    enabled: 1,
+                    // format: "{point.name}"
+                    formatter: function () {
+                        return this.point.name + '<br/>' + this.point.value + ' %';
+                    }
+                },
+                tooltip: {
+                    valueSuffix: '%'
+                }
+            }
+        ]
+    });
+}
+
+/** Reinitialiser les taux au changement de l'annee */
+$('#annee').change(function () {
+    chargerCarte();
+});
+
+/** Reinitialiser les taux au changement du type de l'examen */
+function changerTypeExamen() {
+    typeExamen = $('#typeExam').val();
+    annee = $('#annee').val();
+    $.ajax({
+        type: 'GET',
+        url: "/getAnneesByTypeExam/" + typeExamen,
+        dataType: 'json',
+        global: false,
+        success: function (data) {
+            $('#annee').empty();
+            $('#annee').append($('<option>', {
+                value: false,
+                text: '- - Choisir - -'
+            }));
+            $.each(data.derniereannees, function (index, year) {
+                // ajout des options du select
+                $('#annee').append($('<option>', {
+                    value: year.vind_annee,
+                    text: year.vind_annee
+                }));
+            });
+            if (data.derniereannee != null || data.derniereannee > 0) {
+                $('#annee').val(data.derniereannee);
+                chargerCarte();
+            }
+        }
+    });
+}
+
+/** Changer le decoupage de la carte en fonction de la couverture choisie */
+function chargerCarte() {
+    var couverture = $("input[name='couv']:checked").val();
+    typeExamen = $('#typeExam').val();
+    if (typeExamen == 'BEPC') {
+        codeInd = 'TSUS';
+    } else if (typeExamen == 'CEP') {
+        codeInd = 'TSUP';
+    }
+    annee = $('#annee').val();
+    if (couverture == 'reg') {
+        initUrl = "/getTauxSuccesRegionsByAnnee/" + codeInd + "/" + annee;
+        initDecoupage = Highcharts.maps["countries/bf/bf-reg"];
+        initCouverture = "Région";
+        initUrlDetail = "/getTauxSuccesForRegionByAnnee/" + codeInd;
+        $.ajax({
+            type: 'GET',
+            url: initUrl,
+            dataType: 'json',
+            success: function (data) {
+                initHighmaps(data, initDecoupage, initCouverture, initUrlDetail, $("#chartdiv").width());
+            },
+            error: function () {
+                initHighmaps([], initDecoupage, initCouverture, initUrlDetail, $("#chartdiv").width());
+            }
+        });
+    }
+    else if (couverture == 'pro') {
+        initUrl = "/getTauxSuccesProvincesByAnnee/" + codeInd + "/" + annee;
+        initDecoupage = Highcharts.maps["countries/bf/bf-prov"];
+        initCouverture = "Province";
+        initUrlDetail = "/getTauxSuccesForProvinceByAnnee/" + codeInd;
+        $.ajax({
+            type: 'GET',
+            url: initUrl,
+            dataType: 'json',
+            success: function (data) {
+                initHighmaps(data, initDecoupage, initCouverture, initUrlDetail, $("#chartdiv").width());
+            },
+            error: function () {
+                initHighmaps([], initDecoupage, initCouverture, initUrlDetail, $("#chartdiv").width());
+            }
+        });
+    }
+}

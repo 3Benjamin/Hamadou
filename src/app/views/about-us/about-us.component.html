@@ -1,43 +1,47 @@
-<h2 style="color:rgb(56, 1, 15);">The Team</h2>
-<p>Team WADABA team is a group of young aspiring African scholars from different nationalities. They are all experts
-    in the field of Water who came together under the Pan African University Institute of Water and Energy Sciencesincluding climate change (PAUWES)-Algeria and developed an innovative idea-Water Data Bank, geared towards the
-    provision of solutions related to water pollution in the African continent and Likasi in the Democratic Republic of
-    Congo in particular.</p>
+<section id="" class="team" style="margin-bottom: 15px;">
 
-<h4 style="color:rgb(0, 52, 194);">Ewube</h4>
-<img src="assets/img/Team/Ewube2.jpeg" style="width:128px;height:128px;">
-<p> Ewube Kelly Laure Egbe is an AU Scholar studying Water Policy at the Pan African University 
-    Institute of Water and Energy Sciences including climate change PAUWES Algeria and currently 
-    researching on Climate Change and WASH within rural communities. She obtained a BSc in Geography 
-    from the University of Buea, Buea-Cameroon.  She is a robust and dynamic young fellow of Geography 
-    and Policy Issues interested in social and environmental problems such as plastic wastes solutions. </p>
+    <div class="container" data-aos="fade-up">
 
-<h4 style="color:rgb(0, 52, 194);">Benjamin</h4>
-<img src="assets/img/Team/Ben.jpg" style="width:128px;height:128px;">
-<p> Benjamin Bonkoungou is currently pursuing his Master in Water Engineering at the 
-    Pan African University Institute of Water and Energy Sciences including Climate Change (PAUWES), 
-    Algeria. Prior to joining PAUWES, he majored in Environmental Engineering from Erciyes University, 
-    Turkey; and has worked on a couple of development projects. Benjamin is from Burkina Faso.. </p>
+        <h2>The Team</h2>
+        <p>Team WADABA team is a group of young aspiring African scholars from different nationalities. They are all
+            experts
+            in the field of Water who came together under the Pan African University Institute of Water and Energy
+            Sciencesincluding climate change (PAUWES)-Algeria and developed an innovative idea-Water Data Bank, geared
+            towards the
+            provision of solutions related to water pollution in the African continent and Likasi in the Democratic
+            Republic of
+            Congo in particular.</p>
+    </div>
+</section>
+<!-- ======= Team Section 2 ======= -->
+<section id="team" class="team">
 
-<h4 style="color:rgb(0, 52, 194);">Christian</h4> 
-<img src="assets/img/Team/Christian.jpeg" style="width:128px;height:128px;">
-<p>  Christian MURHULA SHABURWA is an African Union Scholar from DRCongo and currently pursuing a 
-    Master of Science in Water Policy at Pan African University Institute of Water and Energy Sciences, 
-    Algeria. Christian studied Process Engineering during his undergraduate at Djilali Liabes University,
-     Algeria.  Interested in entrepreneurship, Christian was the third winner of the HultPrize. 
-     competition at his university in 2019.</p> 
+    <div class="container" data-aos="fade-up">
+       
 
-<h4 style="color:rgb(0, 52, 194);"> Brendaline</h4>
-<img src="assets/img/Team/Brenda.jfif" style="width:128px;height:128px;">
-<p> NKENEN Brendaline Shieke is a PAUWES student in the water engineering track with an Agricultural 
-    and environmental engineering Bsc background. She has experience with NGOs as a volunteer focused 
-    on fighting against food insecurity which comes from food shortages and low-quality produce. 
-    she was a member of the Next Water Generation Action. She is currently researching on the risks 
-    and opportunities in rice production in Cameroon through a water productivity. approach using 
-    remote sensing data.</p>
+        <div class="row gy-4">
 
- <h4 style="color:rgb(0, 52, 194);"> Cresus</h4> <p> Crésus Hammer KODONGO NDROU is a multi-talented engineer of Central African origin. 
-    He is currently training at Pan African University Institute of Water and Energy Sciences, 
-    Algeria Pauwes where he does water engineering. Always in search of knowledge, he has proven himself 
-    in the field of rural hydraulics, before working as a Wash Facilitator and as Responsible of 
-    the sustainable project at the National Agency of Water and Sanitation in Central Africa.</p>
+            <div  *ngFor="let team of data.teams;let i=index" class="coll col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="{{i*100+100}}">
+                <div class="member">
+                    <div class="member-img">
+                        <img src="{{team.img}}" class="img-fluid" alt="">
+                        <div class="social">
+                            <a href=""><i class="bi bi-twitter"></i></a>
+                            <a href=""><i class="bi bi-facebook"></i></a>
+                            <a href=""><i class="bi bi-instagram"></i></a>
+                            <a href=""><i class="bi bi-linkedin"></i></a>
+                        </div>
+                    </div>
+                    <div class="member-info">
+                        <h4>{{team.title}}</h4>
+                        <!-- <span>Chief Executive Officer</span> -->
+                        <p>{{team.description}}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section><!-- End Team Section 2 -->

@@ -1,7 +1,6 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
+import { LocationStrategy, HashLocationStrategy, CommonModule } from '@angular/common';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
@@ -47,11 +46,14 @@ import { AboutUsComponent } from './views/about-us/about-us.component';
 import { DataComponent } from './views/data/data.component';
 import { WadabaComponent } from './views/wadaba/wadaba.component';
 import { MapsComponent } from './views/maps/maps.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
-    BrowserModule,
     BrowserAnimationsModule,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
     AppAsideModule,
     AppBreadcrumbModule.forRoot(),

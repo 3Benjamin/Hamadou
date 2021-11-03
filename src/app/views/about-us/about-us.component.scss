@@ -8,6 +8,23 @@
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
+
+    .text-show {
+         font-size: 16px;
+         line-height: 16px;
+         height: 32px;
+         overflow: hidden;
+    }
+    .show {
+         overflow: visible;
+         height: auto;
+    }
+    .no-show{
+      overflow: hidden;
+      height: 32px;
+    }
+
+
 :root {
     scroll-behavior: smooth;
   }

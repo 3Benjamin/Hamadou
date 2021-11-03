@@ -1,1 +1,18 @@
 // Here you can add other styles
+$sidebar-color:rgb(72, 72, 170);
+$black:     rgb(12, 102, 144);
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: $sidebar-padding;
+    color: $sidebar-color;
+    background: $black;
+    .nav-icon {
+        display: inline-block;
+        width: ($font-size-base * 1.25);
+        margin: 0 ($sidebar-nav-link-padding-x / 2) 0 0;
+        font-size: $font-size-base;
+        color: rgb(82, 184, 74)!important;
+        text-align: center;
+      }
+}

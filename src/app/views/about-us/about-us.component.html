@@ -1,3 +1,9 @@
+<style>
+     .team .member .member-img:after {
+         
+    background: url(assets/img/team-shape.svg) no-repeat center bottom;
+  }
+</style>
 <section id="" class="team" style="margin-bottom: 15px;">
 
     <div class="container" data-aos="fade-up">
@@ -26,16 +32,16 @@
                     <div class="member-img">
                         <img src="{{team.img}}" class="img-fluid" alt="">
                         <div class="social">
-                            <a href=""><i class="bi bi-twitter"></i></a>
-                            <a href=""><i class="bi bi-facebook"></i></a>
-                            <a href=""><i class="bi bi-instagram"></i></a>
-                            <a href=""><i class="bi bi-linkedin"></i></a>
+                            <a href=""><i class="fa fa-twitter"></i></a>
+                            <a href=""><i class="fa fa-facebook"></i></a>
+                            <a href=""><i class="fa fa-instagram"></i></a>
+                            <a href=""><i class="fa fa-linkedin"></i></a>
                         </div>
                     </div>
                     <div class="member-info">
                         <h4>{{team.title}}</h4>
                         <!-- <span>Chief Executive Officer</span> -->
-                        <p>{{team.description}}</p>
+                        <p (click)="team.show = !team.show" class="text-show" [ngClass]="{'show': team.show,'no-show': !team.show}">{{team.description}}</p>
                     </div>
                 </div>
             </div>

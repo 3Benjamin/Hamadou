@@ -1,8 +1,9 @@
 // Sidebar
+
 .sidebar {
     width: $sidebar-collapsed-width;
     min-height: 100vh;
-
+    background: blue!important;
     .nav-item {
         position: relative;
 
@@ -395,15 +396,15 @@
 
     // Color the sidebar toggler
     #sidebarToggle {
-        background-color: $gray-200;
+        // background-color: $gray-200;
 
-        &::after {
-            color: $gray-500;
-        }
+        // &::after {
+        //     color: $gray-500;
+        // }
 
-        &:hover {
-            background-color: $gray-300;
-        }
+        // &:hover {
+        //     background-color: $gray-300;
+        // }
     }
 }
 

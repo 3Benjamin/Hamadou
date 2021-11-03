@@ -24,7 +24,7 @@ export class AboutUsComponent implements OnInit {
           researching on Climate Change and WASH within rural communities. She obtained a BSc in Geography 
           from the University of Buea, Buea-Cameroon.  She is a robust and dynamic young fellow of Geography 
           and Policy Issues interested in social and environmental problems such as plastic wastes solutions.`,
-          img:'assets/img/team/Ewube.png'
+          img:'assets/img/team/ewube.png'
         },
         {
           title:'Christian',
@@ -33,7 +33,7 @@ export class AboutUsComponent implements OnInit {
           Algeria. Christian studied Process Engineering during his undergraduate at Djilali Liabes University,
            Algeria.  Interested in entrepreneurship, Christian was the third winner of the HultPrize. 
            competition at his university in 2019.`,
-           img:'assets/img/team/Christian.png'
+           img:'assets/img/team/christian.png'
         },
         {
           title:'Brendaline',
@@ -43,7 +43,7 @@ export class AboutUsComponent implements OnInit {
           she was a member of the Next Water Generation Action. She is currently researching on the risks 
           and opportunities in rice production in Cameroon through a water productivity. approach using 
           remote sensing data.`,
-          img:'assets/img/team/Brenda.png'
+          img:'assets/img/team/brenda.png'
         },
         {
           title:'Cresus',
@@ -52,7 +52,7 @@ export class AboutUsComponent implements OnInit {
           Algeria Pauwes where he does water engineering. Always in search of knowledge, he has proven himself 
           in the field of rural hydraulics, before working as a Wash Facilitator and as Responsible of 
           the sustainable project at the National Agency of Water and Sanitation in Central Africa.`,
-          img:'assets/img/team/Cresus.png'
+          img:'assets/img/team/cresus.png'
         },
         {
           title:'Benjamin',
@@ -60,7 +60,7 @@ export class AboutUsComponent implements OnInit {
           Pan African University Institute of Water and Energy Sciences including Climate Change (PAUWES), 
           Algeria. Prior to joining PAUWES, he majored in Environmental Engineering from Erciyes University, 
           Turkey; and has worked on a couple of development projects. Benjamin is from Burkina Faso..`,
-          img:'assets/img/team/Benjo.png'
+          img:'assets/img/team/benjo.png'
         },
       ]
     }
